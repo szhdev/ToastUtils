@@ -1,14 +1,20 @@
+# [English Doc](README-en.md)
+
 # 吐司框架
 
-* 项目地址：[Github](https://github.com/getActivity/ToastUtils)
+* 项目地址：[Github](https://github.com/getActivity/Toaster)
 
 * 博客地址：[只需体验三分钟，你就会跟我一样，爱上这款 Toast](https://www.jianshu.com/p/9b174ee2c571)
 
-* 可以扫码下载 Demo 进行演示或者测试，如果扫码下载不了的，[点击此处可直接下载](https://github.com/getActivity/ToastUtils/releases/download/11.0/ToastUtils.apk)
+* 可以扫码下载 Demo 进行演示或者测试，如果扫码下载不了的，[点击此处可直接下载](https://github.com/getActivity/Toaster/releases/download/12.2/Toaster.apk)
 
-![](picture/demo_code.png)
+![](picture/zh/download_demo_apk_qr_code.png)
 
-![](picture/demo_page.jpg)
+![](picture/zh/demo_toast_activity.jpg) ![](picture/zh/demo_toast_style_white.jpg) ![](picture/zh/demo_toast_style_black.jpg)
+
+![](picture/zh/demo_toast_layout_info.jpg) ![](picture/zh/demo_toast_layout_warn.jpg) ![](picture/zh/demo_toast_layout_success.jpg)
+
+![](picture/zh/demo_toast_layout_error.jpg) ![](picture/zh/demo_toast_layout_custom.jpg)
 
 #### 集成步骤
 
@@ -46,8 +52,8 @@ android {
 }
 
 dependencies {
-    // 吐司框架：https://github.com/getActivity/ToastUtils
-    implementation 'com.github.getActivity:ToastUtils:11.0'
+    // 吐司框架：https://github.com/getActivity/Toaster
+    implementation 'com.github.getActivity:Toaster:12.2'
 }
 ```
 
@@ -61,7 +67,7 @@ public class XxxApplication extends Application {
         super.onCreate();
 
         // 初始化 Toast 框架
-        ToastUtils.init(this);
+        Toaster.init(this);
     }
 }
 ```
@@ -70,97 +76,88 @@ public class XxxApplication extends Application {
 
 ```java
 // 显示 Toast
-ToastUtils.show(CharSequence text);
-ToastUtils.show(int id);
-ToastUtils.show(ToastParams params);
+Toaster.show(CharSequence text);
+Toaster.show(int id);
+Toaster.show(Object object);
 
 // debug 模式下显示 Toast
-ToastUtils.debugShow(int id);
-ToastUtils.debugShow(CharSequence text);
+Toaster.debugShow(CharSequence text);
+Toaster.debugShow(int id);
+Toaster.debugShow(Object object);
 
 // 延迟显示 Toast
-ToastUtils.delayedShow(int id, long delayMillis);
-ToastUtils.delayedShow(CharSequence text, long delayMillis);
+Toaster.delayedShow(CharSequence text, long delayMillis);
+Toaster.delayedShow(int id, long delayMillis);
+Toaster.delayedShow(Object object, long delayMillis);
+
+// 显示短 Toast
+Toaster.showShort(CharSequence text);
+Toaster.showShort(int id);
+Toaster.showShort(Object object);
+
+// 显示长 Toast
+Toaster.showLong(CharSequence text);
+Toaster.showLong(int id);
+Toaster.showLong(Object object);
+
+// 自定义显示 Toast
+Toaster.show(ToastParams params);
 
 // 取消 Toast
-ToastUtils.cancel();
+Toaster.cancel();
 
-// 设置 Toast 布局
-ToastUtils.setView(int id);
+// 设置 Toast 布局（全局生效）
+Toaster.setView(int id);
 
-// 设置 Toast 布局样式
-ToastUtils.setStyle(IToastStyle<?> style);
-// 获取 Toast 布局样式
-ToastUtils.getStyle()
+// 设置 Toast 样式（全局生效）
+Toaster.setStyle(IToastStyle<?> style);
+// 获取 Toast 样式
+Toaster.getStyle()
 
 // 判断当前框架是否已经初始化
-ToastUtils.isInit();
+Toaster.isInit();
 
-// 设置 Toast 策略
-ToastUtils.setStrategy(IToastStrategy strategy);
+// 设置 Toast 策略（全局生效）
+Toaster.setStrategy(IToastStrategy strategy);
 // 获取 Toast 策略
-ToastUtils.getStrategy();
+Toaster.getStrategy();
 
 // 设置 Toast 重心和偏移
-ToastUtils.setGravity(int gravity);
-ToastUtils.setGravity(int gravity, int xOffset, int yOffset);
+Toaster.setGravity(int gravity);
+Toaster.setGravity(int gravity, int xOffset, int yOffset);
 
-// 设置 Toast 拦截器
-ToastUtils.setInterceptor(IToastInterceptor interceptor);
+// 设置 Toast 拦截器（全局生效）
+Toaster.setInterceptor(IToastInterceptor interceptor);
 // 获取 Toast 拦截器
-ToastUtils.getInterceptor();
+Toaster.getInterceptor();
 ```
 
-* 如果你需要对 Toast 的进行深度定制化，可以使用以下方式
-
-```java
-ToastUtils.init(this, new ToastStrategy() {
-
-    @Override
-    public IToast createToast(Application application) {
-        IToast toast = super.createToast(application);
-        if (toast instanceof CustomToast) {
-            CustomToast customToast = ((CustomToast) toast);
-            // 设置 Toast 动画效果
-            customToast.setAnimationsId(R.anim.xxx);
-            // 设置短 Toast 的显示时长（默认是 2000 毫秒）
-            customToast.setShortDuration(1000);
-            // 设置长 Toast 的显示时长（默认是 3500 毫秒）
-            customToast.setLongDuration(5000);
-        }
-        return toast;
-    }
-});
-```
-
-* 这种方式的缺点是只有应用在前台的情况下才会生效，这是因为前台的 Toast 是用框架实现的，本质上是一个 WindowManager，优点是非常灵活，不受原生 Toast 机制限制，缺点是无法在后台的情况下显示；而后台的 Toast 是用系统来实现的，优点是能在后台的情况下显示，缺点是局限性非常大，无法做太深的定制化；而框架正是利用了两种方式的优缺点进行了互补。
-
-### 温馨提示：框架意在解决一些常规的 Toast 需求，如果是有一些特殊的定制化需求请配搭 [XToast](https://github.com/getActivity/XToast) 悬浮窗框架使用
+## [常见疑问请点击此处查看](HelpDoc-zh.md)
 
 #### 不同 Toast 框架之间的对比
 
-|  功能或细节  | [ToastUtils](https://github.com/getActivity/ToastUtils) | [AndroidUtilCode](https://github.com/Blankj/AndroidUtilCode)  | [Toasty](https://github.com/GrenderG/Toasty) |
+|  功能或细节  | [Toaster](https://github.com/getActivity/Toaster) | [AndroidUtilCode-ToastUtils](https://github.com/Blankj/AndroidUtilCode)  | [Toasty](https://github.com/GrenderG/Toasty) |
 | :----: | :------: |  :-----: |  :-----: |
-|    对应版本  |  11.0 |  1.30.6  |  1.5.0  |
-|    issues 数   |  [![](https://img.shields.io/github/issues/getActivity/ToastUtils.svg)](https://github.com/getActivity/ToastUtils/issues)  |  [![](https://img.shields.io/github/issues/Blankj/AndroidUtilCode.svg)](https://github.com/Blankj/AndroidUtilCode/issues)  |  [![](https://img.shields.io/github/issues/GrenderG/Toasty.svg)](https://github.com/GrenderG/Toasty/issues)  |
-|                  **aar 包大小**                 | 31 KB | 500 KB | 50 KB |
-|                   框架维护状态                   | **维护中** | 停止维护 | 停止维护 |
-|                  **调用代码定位**                |  ✅  |  ❌  |  ❌  |
-|              **支持在子线程中调用显示**            |  ✅  |  ✅  |  ❌  |
-|            支持设置**局部** Toast 样式            |  ✅  |  ❌  |  ❌  |
-|            支持设置**全局** Toast 样式            |  ✅  |  ❌  |  ❌  |
-|              支持 Toast **即显即示**             |  ✅  |  ✅  |  ❌  |
-|              支持 Toast **排队显示**             |  ✅  |  ❌  |  ✅  |
-|              支持 Toast **延迟显示**               |  ✅  |  ❌  |  ❌  |
-|      **处理 Toast 在 Android 7.1 崩溃的问题**     |  ✅  |  ✅  |  ❌  |
-|    **兼容通知栏权限关闭后 Toast 显示不出来的问题**    |  ✅  |  ✅  |  ❌  |
-|   **适配 Android 11 不能在后台显示 Toast 的问题**   |  ✅  |  ❌  |  ❌  |
+|    对应版本  |  12.2 |  1.30.6  |  1.5.0  |
+|    issues 数   |  [![](https://img.shields.io/github/issues/getActivity/Toaster.svg)](https://github.com/getActivity/Toaster/issues)  |  [![](https://img.shields.io/github/issues/Blankj/AndroidUtilCode.svg)](https://github.com/Blankj/AndroidUtilCode/issues)  |  [![](https://img.shields.io/github/issues/GrenderG/Toasty.svg)](https://github.com/GrenderG/Toasty/issues)  |
+|                    框架体积                 | 32 KB | 500 KB | 50 KB |
+|                   框架维护状态               | 维护中 | 停止维护 | 停止维护 |
+|                  调用代码定位                |  ✅  |  ❌  |  ❌  |
+|              支持在子线程中调用显示            |  ✅  |  ✅  |  ❌  |
+|            支持设置局部 Toast 样式            |  ✅  |  ❌  |  ❌  |
+|            支持设置全局 Toast 样式            |  ✅  |  ❌  |  ❌  |
+|              支持 Toast 即显即示             |  ✅  |  ✅  |  ❌  |
+|              支持 Toast 排队显示             |  ✅  |  ❌  |  ✅  |
+|              支持 Toast 延迟显示             |  ✅  |  ❌  |  ❌  |
+|      处理 Toast 在 Android 7.1 崩溃的问题     |  ✅  |  ✅  |  ❌  |
+|    兼容通知栏权限关闭后 Toast 显示不出来的问题    |  ✅  |  ✅  |  ❌  |
+|   适配 Android 11 不能在后台显示 Toast 的问题   |  ✅  |  ❌  |  ❌  |
 
 #### 调用代码定位功能介绍
 
-* 框架会在日志打印中输出在 Toast 调用的代码位置，这样开发者可以直接通过点击 Log 来定位是在哪个类哪行代码调用的，这样可以极大提升我们排查问题的效率，特别是 Toast 的内容是由后台返回的情况下，我相信没有任何一个人会拒绝这样的功能。
+* 框架会在日志打印中输出在 Toast 调用的代码位置，这样开发者可以直接通过点击 Log 来定位是在哪个类哪行代码调用的，这样可以极大提升我们排查问题的效率，特别是 Toast 的内容是由服务器返回的情况下，我相信没有任何一个人会拒绝这样的功能。
 
-![](picture/logcat_code.jpg)
+![](picture/zh/demo_logcat_code.jpg)
 
 #### Toast 在 Android 7.1 崩溃的问题介绍
 
@@ -176,7 +173,7 @@ ToastUtils.init(this, new ToastStrategy() {
 
 * 这个问题的出现是因为原生 Toast 的显示要通过 NMS（NotificationManagerService） 才会 addView 到 Window 上面，而在 NMS 中有一个 `static final boolean ENABLE_BLOCKED_TOASTS = true` 的字段，当这个常量值为 true 时，会触发 NMS 对应用通知栏权限的检查，如果没有通知栏权限，那么这个 Toast 将会被 NMS 所拦截，并输出 `Suppressing toast from package` 日志信息，而小米手机没有这个问题是因为它是将 `ENABLE_BLOCKED_TOASTS` 字段值修改成 `false`，所以就不会触发对通知栏权限的检查，另外我为什么会知道有这个事情？因为我曾经和一名 MIUI 工程师一起确认过这个事情。
 
-* 框架处理这个问题的方式有两种，先判断当前应用是否处于前台状态，如果是则使用自定义的 WindowManager 代替 Toast 来显示，如果当前应用处于后台状态，则会通过 Hook Toast 中的 INotificationManager 接口，将 enqueueToast 方法传递的包名参数修改成 `android` 来欺骗 NotificationManagerService，因为 NotificationManagerService 已经将 `android` 包名的应用纳入白名单，会自动放行，需要注意的是，这种方式在 Android 10 上面已经失效了，已经被系统纳入反射黑名单，但是好消息是，通过查看和对比 NotificationManagerService 源码发现，这个问题（关闭通知栏权限后无法在前台弹 Toast 的问题）已经在 Android 10.0 的版本上面被修复了，所以框架只在 Android 9.0 及以下版本并且在关闭了通知栏权限的情况下才去 Hook INotificationManager，另外我还找到了官方关于这块的代码提交记录：[Always allow toasts from foreground apps](https://cs.android.com/android/_/android/platform/frameworks/base/+/58b2453ed69197d765c7254241d9966ee49a3efb)，大家可以感兴趣可以看看，还有一个问题，如果你想在 Android 10 之后仍然能在后台显示 Toast，请保证应用的通知栏权限或者悬浮窗权限处于开启的状态，如果你一定要求在后台要 100% 能显示 Toast，请保证应用有悬浮窗权限，因为在某些厂商的手机上，就算有通知栏权限也是无法在后台显示 Toast，例如我用 HarmonyOS 2.0 测试就不行，所以具体要看产品怎么斟酌。
+* 框架处理这个问题的方式有两种，先判断当前应用是否处于前台状态，如果是则使用自定义的 WindowManager 代替 Toast 来显示，如果当前应用处于后台状态，则会通过 Hook Toast 中的 INotificationManager 接口，将 enqueueToast 方法传递的包名参数修改成 `android` 来欺骗 NotificationManagerService，因为 NotificationManagerService 已经将 `android` 包名的应用纳入白名单，系统会自动放行，需要注意的是，这种方式在 Android 10 上面已经失效了，已经被系统纳入反射黑名单，但是好消息是，通过查看和对比 NotificationManagerService 源码发现，这个问题（关闭通知栏权限后无法在前台弹 Toast 的问题）已经在 Android 10.0 的版本上面被修复了，所以框架只在 Android 9.0 及以下版本并且在关闭了通知栏权限的情况下才去 Hook INotificationManager，另外我还找到了官方关于这块的代码提交记录：[Always allow toasts from foreground apps](https://cs.android.com/android/_/android/platform/frameworks/base/+/58b2453ed69197d765c7254241d9966ee49a3efb)，大家可以感兴趣可以看看，还有一个问题，如果你想在 Android 10 及之后的版本仍然能在后台显示 Toast，请保证应用的通知栏权限或者悬浮窗权限处于开启的状态，如果你一定要求在后台状态下要 100% 能显示 Toast，请保证应用有悬浮窗权限，因为在某些厂商的手机上，就算有通知栏权限也是无法在后台显示 Toast，例如我用 HarmonyOS 2.0 测试就不行，所以具体要看产品怎么斟酌。
 
 #### Android 11 不能在后台显示 Toast 的问题介绍
 
@@ -184,11 +181,11 @@ ToastUtils.init(this, new ToastStrategy() {
 
 * 那么我们如何解决这一问题呢？难道真的不能用自定义样式的 Toast 了？我的答案是：不，凡事不能一刀切，谷歌只说不能在后台显示自定义的 Toast，并不能代表不能在前台那么做，框架的适配思路是，在 Android 11 的情况下，会先判断当前应用是处于前台还是后台，如果是在前台的情况下就显示自定义样式的 Toast，如果是在后台的情况下就显示系统样式的 Toast（通过舍弃自定义样式来保证 Toast 能够正常显示出来），这样既能符合 Android 11 要求，同时又能将定制化 Toast 的权益最大化。
 
-* 值得注意的是：ToastUtils 是目前同类框架第一款也是唯一一款适配 Android 11 这一特性的框架。
+* 值得注意的是：Toaster 是目前同类框架第一款也是唯一一款适配 Android 11 这一特性的框架。
 
 #### 框架亮点
 
-* 一马当先：首款适配 Android 11 的吐司框架，使用者无需关心适配过程
+* 一马当先：首款适配 Android 11 的吐司框架，开发者无需关心适配过程
 
 * 无需权限：[不管有没有授予通知栏权限都不影响吐司的弹出](https://www.jianshu.com/p/1d64a5ccbc7c)
 
@@ -213,7 +210,7 @@ Toast\.makeText\([^,]+,\s*(.+),\s*[^,]+\)\.show\(\)
 ```
 
 ```text
-ToastUtils.show($1)
+Toaster.show($1)
 ```
 
 * 对导包进行替换
@@ -223,7 +220,7 @@ import android.widget.Toast
 ```
 
 ```text
-import com.hjq.toast.ToastUtils
+import com.hjq.toast.Toaster
 ```
 
 *  再全局搜索，手动更换一些没有替换成功的
@@ -267,7 +264,11 @@ new Toast
 
 * 表情包大集合：[EmojiPackage](https://github.com/getActivity/EmojiPackage) ![](https://img.shields.io/github/stars/getActivity/EmojiPackage.svg) ![](https://img.shields.io/github/forks/getActivity/EmojiPackage.svg)
 
+* AI 资源大汇总：[AiIndex](https://github.com/getActivity/AiIndex) ![](https://img.shields.io/github/stars/getActivity/AiIndex.svg) ![](https://img.shields.io/github/forks/getActivity/AiIndex.svg)
+
 * 省市区 Json 数据：[ProvinceJson](https://github.com/getActivity/ProvinceJson) ![](https://img.shields.io/github/stars/getActivity/ProvinceJson.svg) ![](https://img.shields.io/github/forks/getActivity/ProvinceJson.svg)
+
+* Markdown 语法文档：[MarkdownDoc](https://github.com/getActivity/MarkdownDoc) ![](https://img.shields.io/github/stars/getActivity/MarkdownDoc.svg) ![](https://img.shields.io/github/forks/getActivity/MarkdownDoc.svg)
 
 #### 微信公众号：Android轮子哥
 

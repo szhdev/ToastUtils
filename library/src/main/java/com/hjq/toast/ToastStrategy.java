@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 
 /**
  *    author : Android 轮子哥
- *    github : https://github.com/getActivity/ToastUtils
+ *    github : https://github.com/getActivity/Toaster
  *    time   : 2018/11/12
  *    desc   : Toast 默认处理器
  *    doc    : https://developer.android.google.cn/reference/android/widget/Toast
@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 public class ToastStrategy implements IToastStrategy {
 
     /**
-     * 即显即示模式
+     * 即显即示模式（默认）
      *
      * 在发起多次 Toast 的显示请求情况下，显示下一个 Toast 之前
      * 会先立即取消上一个 Toast，保证当前显示 Toast 消息是最新的
@@ -124,8 +124,7 @@ public class ToastStrategy implements IToastStrategy {
         } else {
             toast = new SystemToast(mApplication);
         }
-
-        if (isSupportToastStyle(toast)) {
+        if (isSupportToastStyle(toast) || !onlyShowSystemToastStyle()) {
             diyToastStyle(toast, style);
         }
         return toast;
@@ -192,9 +191,9 @@ public class ToastStrategy implements IToastStrategy {
      * 生成 Toast 等待时间
      */
     protected int generateToastWaitMillis(ToastParams params) {
-        if (params.toastDuration == Toast.LENGTH_SHORT) {
+        if (params.duration == Toast.LENGTH_SHORT) {
             return 1000;
-        } else if (params.toastDuration == Toast.LENGTH_LONG) {
+        } else if (params.duration == Toast.LENGTH_LONG) {
             return 1500;
         }
         return 0;
@@ -224,9 +223,9 @@ public class ToastStrategy implements IToastStrategy {
             }
             toast = createToast(mToastParams.style);
             // 为什么用 WeakReference，而不用 SoftReference ？
-            // https://github.com/getActivity/ToastUtils/issues/79
+            // https://github.com/getActivity/Toaster/issues/79
             mToastReference = new WeakReference<>(toast);
-            toast.setDuration(mToastParams.toastDuration);
+            toast.setDuration(mToastParams.duration);
             toast.setText(mToastParams.text);
             toast.show();
         }
@@ -249,7 +248,42 @@ public class ToastStrategy implements IToastStrategy {
             }
             toast.cancel();
         }
-    };
+    }
+
+    /**
+     * 当前是否只能显示系统 Toast 样式
+     */
+    protected boolean onlyShowSystemToastStyle() {
+        // Github issue 地址：https://github.com/getActivity/Toaster/issues/103
+        // Toast.CHANGE_TEXT_TOASTS_IN_THE_SYSTEM = 147798919L
+        return isChangeEnabledCompat(147798919L);
+    }
+
+    @SuppressLint("PrivateApi")
+    protected boolean isChangeEnabledCompat(long changeId) {
+        // 需要注意的是这个 api 是在 android 11 的时候出现的，反射前需要先判断好版本
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return true;
+        }
+        try {
+            // 因为 Compatibility.isChangeEnabled() 普通应用根本调用不到，反射也不行
+            // 通过 Toast.isSystemRenderedTextToast 也没有办法反射到
+            // 最后发现反射 CompatChanges.isChangeEnabled 是可以的
+            Class<?> aClass = Class.forName("android.app.compat.CompatChanges");
+            Method method = aClass.getMethod("isChangeEnabled", long.class);
+            method.setAccessible(true);
+            return Boolean.parseBoolean(String.valueOf(method.invoke(null, changeId)));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * 是否有通知栏权限

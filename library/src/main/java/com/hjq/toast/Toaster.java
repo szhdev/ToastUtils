@@ -9,18 +9,18 @@ import com.hjq.toast.config.IToastInterceptor;
 import com.hjq.toast.config.IToastStrategy;
 import com.hjq.toast.config.IToastStyle;
 import com.hjq.toast.style.BlackToastStyle;
-import com.hjq.toast.style.CustomViewToastStyle;
+import com.hjq.toast.style.CustomToastStyle;
 import com.hjq.toast.style.LocationToastStyle;
 import com.hjq.toast.style.WhiteToastStyle;
 
 /**
  *    author : Android 轮子哥
- *    github : https://github.com/getActivity/ToastUtils
+ *    github : https://github.com/getActivity/Toaster
  *    time   : 2018/09/01
  *    desc   : Toast 框架（专治 Toast 疑难杂症）
  */
 @SuppressWarnings("unused")
-public final class ToastUtils {
+public final class Toaster {
 
     /** Application 对象 */
     private static Application sApplication;
@@ -40,7 +40,7 @@ public final class ToastUtils {
     /**
      * 不允许被外部实例化
      */
-    private ToastUtils() {}
+    private Toaster() {}
 
     /**
      * 初始化 Toast，需要在 Application.create 中初始化
@@ -94,15 +94,18 @@ public final class ToastUtils {
      */
 
     public static void delayedShow(int id, long delayMillis) {
-        show(id, delayMillis);
-    }
-
-    public static void delayedShow(CharSequence text, long delayMillis) {
-        show(text, delayMillis);
+        delayedShow(stringIdToCharSequence(id), delayMillis);
     }
 
     public static void delayedShow(Object object, long delayMillis) {
-        show(object, delayMillis);
+        delayedShow(objectToCharSequence(object), delayMillis);
+    }
+
+    public static void delayedShow(CharSequence text, long delayMillis) {
+        ToastParams params = new ToastParams();
+        params.text = text;
+        params.delayMillis = delayMillis;
+        show(params);
     }
 
     /**
@@ -110,24 +113,58 @@ public final class ToastUtils {
      */
 
     public static void debugShow(int id) {
-        if (!isDebugMode()) {
-            return;
-        }
-        show(id, 0);
+        debugShow(stringIdToCharSequence(id));
+    }
+
+    public static void debugShow(Object object) {
+        debugShow(objectToCharSequence(object));
     }
 
     public static void debugShow(CharSequence text) {
         if (!isDebugMode()) {
             return;
         }
-        show(text, 0);
+        ToastParams params = new ToastParams();
+        params.text = text;
+        show(params);
     }
 
-    public static void debugShow(Object object) {
-        if (!isDebugMode()) {
-            return;
-        }
-        show(object, 0);
+    /**
+     * 显示一个短 Toast
+     */
+
+    public static void showShort(int id) {
+        showShort(stringIdToCharSequence(id));
+    }
+
+    public static void showShort(Object object) {
+        showShort(objectToCharSequence(object));
+    }
+
+    public static void showShort(CharSequence text) {
+        ToastParams params = new ToastParams();
+        params.text = text;
+        params.duration = Toast.LENGTH_SHORT;
+        show(params);
+    }
+
+    /**
+     * 显示一个长 Toast
+     */
+
+    public static void showLong(int id) {
+        showLong(stringIdToCharSequence(id));
+    }
+
+    public static void showLong(Object object) {
+        showLong(objectToCharSequence(object));
+    }
+
+    public static void showLong(CharSequence text) {
+        ToastParams params = new ToastParams();
+        params.text = text;
+        params.duration = Toast.LENGTH_LONG;
+        show(params);
     }
 
     /**
@@ -135,39 +172,22 @@ public final class ToastUtils {
      */
 
     public static void show(int id) {
-        show(id, 0);
+        show(stringIdToCharSequence(id));
     }
 
     public static void show(Object object) {
-        show(object, 0);
+        show(objectToCharSequence(object));
     }
 
     public static void show(CharSequence text) {
-        show(text, 0);
-    }
-
-    private static void show(int id, long delayMillis) {
-        try {
-            // 如果这是一个资源 id
-            show(sApplication.getResources().getText(id));
-        } catch (Resources.NotFoundException ignored) {
-            // 如果这是一个 int 整数
-            show(String.valueOf(id));
-        }
-    }
-
-    private static void show(Object object, long delayMillis) {
-        show(object != null ? object.toString() : "null", delayMillis);
-    }
-
-    private static void show(CharSequence text, long delayMillis) {
         ToastParams params = new ToastParams();
         params.text = text;
-        params.delayMillis = delayMillis;
         show(params);
     }
 
     public static void show(ToastParams params) {
+        checkInitStatus();
+
         // 如果是空对象或者空文本就不显示
         if (params.text == null || params.text.length() == 0) {
             return;
@@ -192,8 +212,8 @@ public final class ToastUtils {
             return;
         }
 
-        if (params.toastDuration == -1) {
-            params.toastDuration = params.text.length() > 20 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
+        if (params.duration == -1) {
+            params.duration = params.text.length() > 20 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
         }
 
         params.strategy.showToast(params);
@@ -230,7 +250,7 @@ public final class ToastUtils {
         if (id <= 0) {
             return;
         }
-        setStyle(new CustomViewToastStyle(id, sToastStyle.getGravity(),
+        setStyle(new CustomToastStyle(id, sToastStyle.getGravity(),
                 sToastStyle.getXOffset(), sToastStyle.getYOffset(),
                 sToastStyle.getHorizontalMargin(), sToastStyle.getVerticalMargin()));
     }
@@ -281,10 +301,36 @@ public final class ToastUtils {
         sDebugMode = debug;
     }
 
+    /**
+     * 检查框架初始化状态，如果未初始化请先调用{@link Toaster#init(Application)}
+     */
+    private static void checkInitStatus() {
+        // 框架当前还没有被初始化，必须要先调用 init 方法进行初始化
+        if (sApplication == null) {
+            throw new IllegalStateException("Toaster has not been initialized");
+        }
+    }
+
     static boolean isDebugMode() {
         if (sDebugMode == null) {
+            checkInitStatus();
             sDebugMode = (sApplication.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         }
         return sDebugMode;
+    }
+
+    private static CharSequence stringIdToCharSequence(int id) {
+        checkInitStatus();
+        try {
+            // 如果这是一个资源 id
+            return sApplication.getResources().getText(id);
+        } catch (Resources.NotFoundException ignored) {
+            // 如果这是一个 int 整数
+            return String.valueOf(id);
+        }
+    }
+
+    private static CharSequence objectToCharSequence(Object object) {
+        return object != null ? object.toString() : "null";
     }
 }
