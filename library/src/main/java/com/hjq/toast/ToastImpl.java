@@ -22,6 +22,8 @@ import android.widget.Toast;
  */
 final class ToastImpl {
 
+    private static final String WINDOW_TITLE = "Toast";
+
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
     /** 当前的吐司对象 */
@@ -42,7 +44,7 @@ final class ToastImpl {
     ToastImpl(Activity activity, CustomToast toast) {
         this((Context) activity, toast);
         mGlobalShow = false;
-        mWindowLifecycle = new WindowLifecycle((activity));
+        mWindowLifecycle = new WindowLifecycle(activity);
     }
 
     ToastImpl(Application application, CustomToast toast) {
@@ -105,7 +107,8 @@ final class ToastImpl {
     /**
      * 发送无障碍事件
      */
-    private void trySendAccessibilityEvent(View view) {
+    @SuppressWarnings("deprecation")
+    private void sendAccessibilityEvent(View view) {
         final Context context = view.getContext();
         AccessibilityManager accessibilityManager =
                 (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
@@ -152,6 +155,16 @@ final class ToastImpl {
             params.verticalMargin = mToast.getVerticalMargin();
             params.horizontalMargin = mToast.getHorizontalMargin();
             params.windowAnimations = mToast.getAnimationsId();
+            params.setTitle(WINDOW_TITLE);
+
+            // 指定 WindowManager 忽略系统窗口可见性的影响
+            // 例如下面这些的显示和隐藏都会影响当前 WindowManager 的显示（触发位置调整）
+            // WindowInsets.Type.statusBars()：状态栏
+            // WindowInsets.Type.navigationBars()：导航栏
+            // WindowInsets.Type.ime()：输入法（软键盘）
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                params.setFitInsetsIgnoringVisibility(true);
+            }
 
             // 如果是全局显示
             if (mGlobalShow) {
@@ -177,7 +190,7 @@ final class ToastImpl {
                 // 当前已经显示
                 setShow(true);
                 // 发送无障碍事件
-                trySendAccessibilityEvent(mToast.getView());
+                sendAccessibilityEvent(mToast.getView());
             } catch (IllegalStateException | WindowManager.BadTokenException e) {
                 // 如果这个 View 对象被重复添加到 WindowManager 则会抛出异常
                 // java.lang.IllegalStateException: View android.widget.TextView has already been added to the window manager.
