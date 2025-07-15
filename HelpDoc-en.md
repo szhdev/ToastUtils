@@ -23,6 +23,7 @@ Toaster.init(this, new ToastStrategy() {
 
     @Override
     public IToast createToast(IToastStyle<?> style) {
+        IToast toast = super.createToast(style);
         if (toast instanceof CustomToast) {
             CustomToast customToast = ((CustomToast) toast);
             // Set the toast animation effect
@@ -156,7 +157,7 @@ public class ToastStrategy {
 ToastParams params = new ToastParams();
 params.text = "I am a Toast that can be displayed across pages";
 // Indicates that this Toast needs to be displayed across pages
-params.crossPageShow = true;
+params.priorityType = ToastParams.PRIORITY_TYPE_GLOBAL;
 Toaster.show(params);
 
 #### Why the framework prefers to use window manager to implement toast

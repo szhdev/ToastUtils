@@ -39,6 +39,7 @@ Toaster.init(this, new ToastStrategy() {
 
     @Override
     public IToast createToast(IToastStyle<?> style) {
+        IToast toast = super.createToast(style);
         if (toast instanceof CustomToast) {
             CustomToast customToast = ((CustomToast) toast);
             // 设置 Toast 动画效果
@@ -172,7 +173,7 @@ public class ToastStrategy {
 ToastParams params = new ToastParams();
 params.text = "我是一个能跨页面展示的 Toast";
 // 表示这个 Toast 需要跨页面展示
-params.crossPageShow = true;
+params.priorityType = ToastParams.PRIORITY_TYPE_GLOBAL;
 Toaster.show(params);
 ```
 
