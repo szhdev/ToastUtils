@@ -4,7 +4,7 @@
 
 * Project address: [Github](https://github.com/getActivity/Toaster)
 
-* [Click here to download demo apk directly](https://github.com/getActivity/Toaster/releases/download/13.0/Toaster.apk)
+* [Click here to download demo apk directly](https://github.com/getActivity/Toaster/releases/download/13.6/Toaster.apk)
 
 ![](picture/en/demo_toast_activity.jpg) ![](picture/en/demo_toast_style_white.jpg) ![](picture/en/demo_toast_style_black.jpg)
 
@@ -49,7 +49,7 @@ android {
 
 dependencies {
     // Toast framework：https://github.com/getActivity/Toaster
-    implementation 'com.github.getActivity:Toaster:13.0'
+    implementation 'com.github.getActivity:Toaster:13.6'
 }
 ```
 
@@ -134,7 +134,7 @@ Toaster.getInterceptor();
 
 |  Function or detail  | [Toaster](https://github.com/getActivity/Toaster) |[ AndroidUtilCode-ToastUtils ](https://github.com/Blankj/AndroidUtilCode)| [Toasty](https://github.com/GrenderG/Toasty) |
 | :----: | :------: |  :-----: |  :-----: |
-| Corresponding version |  13.0 |  1.30.6  |  1.5.0  |
+| Corresponding version |  13.6 |  1.30.6  |  1.5.0  |
 |    Number of issues   |  [![](https://img.shields.io/github/issues/getActivity/Toaster.svg)](https://github.com/getActivity/Toaster/issues)  |[![](https://img.shields.io/github/issues/Blankj/AndroidUtilCode.svg)](https://github.com/Blankj/AndroidUtilCode/issues)|  [![](https://img.shields.io/github/issues/GrenderG/Toasty.svg)](https://github.com/GrenderG/Toasty/issues)  |
 |  Framework pack size | 33 KB | 500 KB | 50 KB |
 | Framework maintenance status| 维护中 | 停止维护 | 停止维护 |
@@ -236,6 +236,8 @@ new Toast
 
 * Floating window framework: [EasyWindow](https://github.com/getActivity/EasyWindow)![](https://img.shields.io/github/stars/getActivity/EasyWindow.svg)![](https://img.shields.io/github/forks/getActivity/EasyWindow.svg)
 
+* Device compatibility framework：[DeviceCompat](https://github.com/getActivity/DeviceCompat) ![](https://img.shields.io/github/stars/getActivity/DeviceCompat.svg) ![](https://img.shields.io/github/forks/getActivity/DeviceCompat.svg)
+
 * Shape view framework: [ShapeView](https://github.com/getActivity/ShapeView)![](https://img.shields.io/github/stars/getActivity/ShapeView.svg)![](https://img.shields.io/github/forks/getActivity/ShapeView.svg)
 
 * Shape drawable framework: [ShapeDrawable](https://github.com/getActivity/ShapeDrawable)![](https://img.shields.io/github/stars/getActivity/ShapeDrawable.svg)![](https://img.shields.io/github/forks/getActivity/ShapeDrawable.svg)
@@ -258,7 +260,7 @@ new Toast
 
 * Studio boutique plugins: [StudioPlugins](https://github.com/getActivity/StudioPlugins)![](https://img.shields.io/github/stars/getActivity/StudioPlugins.svg)![](https://img.shields.io/github/forks/getActivity/StudioPlugins.svg)
 
-* Emoji collection: [emoji pa c shadow](https://github.com/getActivity/EmojiPackage)![](https://img.shields.io/github/stars/getActivity/EmojiPackage.svg)![](https://img.shields.io/github/forks/getActivity/EmojiPackage.svg)
+* Emoji collection: [EmojiPackage](https://github.com/getActivity/EmojiPackage)![](https://img.shields.io/github/stars/getActivity/EmojiPackage.svg)![](https://img.shields.io/github/forks/getActivity/EmojiPackage.svg)
 
 * China provinces json: [ProvinceJson](https://github.com/getActivity/ProvinceJson)![](https://img.shields.io/github/stars/getActivity/ProvinceJson.svg)![](https://img.shields.io/github/forks/getActivity/ProvinceJson.svg)
 
